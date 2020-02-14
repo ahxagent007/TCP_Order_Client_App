@@ -44,7 +44,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="9"
+            android:layout_weight="7"
             android:text="Table #"
             android:textColor="#000000"
             android:textSize="20dp"
@@ -56,7 +56,7 @@
             android:id="@+id/ET_tableNo"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:hint="Table #"
             android:gravity="center"
             android:background="@drawable/round_bgg_white"
