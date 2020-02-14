@@ -5,7 +5,8 @@
     android:orientation="horizontal"
     android:background="@drawable/round_bgg_white"
     android:weightSum="10"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:layout_margin="10dp">
 
     <TextView
         android:id="@+id/TV_itemName"
@@ -47,6 +48,7 @@
         android:textStyle="bold"/>
 
     <Button
+
         android:id="@+id/btn_order"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
