@@ -1,18 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="@color/bg_blue"
+        android:orientation="horizontal"
+        android:weightSum="10">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="9"
+            android:text="Customer App"
+            android:textColor="#FFFFFF"
+            android:textSize="20dp"
+            android:padding="10dp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Setting"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_grey"
+        android:orientation="horizontal"
+        android:weightSum="10"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="9"
+            android:text="Table #"
+            android:textColor="#000000"
+            android:textSize="20dp"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="Table #"
+            android:gravity="center"
+            android:background="@drawable/round_bgg_white"
+            android:layout_margin="10dp"
+            />
+    </LinearLayout>
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:orientation="vertical"
+       android:background="@drawable/round_grey"
+       android:layout_margin="10dp">
+
+       <TextView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="Item Available Now"
+           android:textColor="#000000"
+           android:textSize="20dp"
+           android:padding="10dp"
+           android:textStyle="bold"
+           android:gravity="center"/>
+
+       <ScrollView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content">
+
+           <ListView
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"/>
+
+       </ScrollView>
+
+
+   </LinearLayout>
+
+
+
+</LinearLayout>
