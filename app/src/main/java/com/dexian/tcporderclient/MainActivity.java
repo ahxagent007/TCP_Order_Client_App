@@ -2,19 +2,24 @@ package com.dexian.tcporderclient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,42 +61,25 @@ public class MainActivity extends AppCompatActivity {
         ET_tableNo = findViewById(R.id.ET_tableNo);
 
         // Create a new instance of Gson
-        Gson gson = new Gson();
+        final Gson gson = new Gson();
 
 
-        OrderList orderList[] = new OrderList[5];
-        ItemList itemList[] = new ItemList[10];
+        List<OrderList> orderList = new ArrayList<OrderList>();
+        List<ItemList> itemList = new ArrayList<ItemList>();
 
-        orderList[0] = new OrderList("Burger", 10, "Table#05");
-        orderList[1] = new OrderList("Chefs Special", 50, "Table#71");
-        orderList[2] = new OrderList("Chicken Msala Curry", 16, "Table#12");
-        orderList[3] = new OrderList("Chowmeen", 19, "Table#06");
-        orderList[4] = new OrderList("Chicken Burger", 32, "Table#08");
-
-        itemList[0] = new ItemList("Burger", 100);
-        itemList[1] = new ItemList("Chefs Special", 600);
-        itemList[2] = new ItemList("Chicken Msala Curry", 150);
-        itemList[3] = new ItemList("Chowmeen", 1000);
-        itemList[4] = new ItemList("Chicken Burger", 150);
-
-        itemList[5] = new ItemList("Burger", 100);
-        itemList[6] = new ItemList("Chefs Special", 600);
-        itemList[7] = new ItemList("Chicken Msala Curry", 150);
-        itemList[8] = new ItemList("Chowmeen", 1000);
-        itemList[9] = new ItemList("Chicken Burger", 150);
+        itemList.add(new ItemList("Burger", 100));
+        itemList.add(new ItemList("Chefs Special", 600));
+        itemList.add(new ItemList("Chicken Msala Curry", 150));
+        itemList.add(new ItemList("Chowmeen", 1000));
+        itemList.add( new ItemList("Chicken Burger", 150));
 
         infoData = new infoData(orderList, itemList);
-
-        String sampleJson = gson.toJson(infoData);
-        Log.i("XIAN", "sampleJson = " + sampleJson);
-
 
 
         btn_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BackgroundTask backgroundTask = new BackgroundTask();
-                backgroundTask.execute("{data:'dadasdd', data2:'dadasdsad'}");
+
 
             }
         });
@@ -103,14 +91,27 @@ public class MainActivity extends AppCompatActivity {
 
               @Override
               public void run() {
+                  String sampleJson = gson.toJson(infoData);
 
+                  //BackgroundTask backgroundTask = new BackgroundTask();
+                  //backgroundTask.execute("Sending Data");
+
+                  new Handler(Looper.getMainLooper()).post(new Runnable() {
+                      @Override
+                      public void run() {
+                          adapter.notifyDataSetChanged();
+                      }
+                  });
+
+
+                  Log.i("XIAN", "sampleJson = " + sampleJson);
               }
 
           },
         //Set how long before to start calling the TimerTask (in milliseconds)
         0,
         //Set the amount of time between each execution (in milliseconds)
-        1000);
+        5000);
 
 
         adapter = new CustomAdapter(getApplicationContext(), infoData.getItemList());
@@ -211,19 +212,18 @@ public class MainActivity extends AppCompatActivity {
 
     public class CustomAdapter extends BaseAdapter {
         private Context context;
-        private ItemList[] itemList;
+        private List<ItemList> itemList;
 
         private TextView TV_itemName, TV_itemPrice;
-        private EditText ET_itemQuantity;
         Button btn_order;
 
-        public CustomAdapter(Context context, ItemList[] itemList) {
+        public CustomAdapter(Context context, List<ItemList> itemList) {
             this.context = context;
             this.itemList = itemList;
         }
         @Override
         public int getCount() {
-            return itemList.length;
+            return itemList.size();
         }
         @Override
         public Object getItem(int position) {
@@ -234,20 +234,99 @@ public class MainActivity extends AppCompatActivity {
             return position;
         }
         @Override
-        public View getView(int position, View view, ViewGroup parent) {
+        public View getView(final int position, View view, ViewGroup parent) {
             view = LayoutInflater.from(context).inflate(R.layout.single_item_list, parent, false);
+
+
 
             //add data to UI
             TV_itemName = view.findViewById(R.id.TV_itemName);
             TV_itemPrice = view.findViewById(R.id.TV_itemPrice);
-            ET_itemQuantity = view.findViewById(R.id.ET_itemQuantity);
             btn_order = view.findViewById(R.id.btn_order);
 
-            TV_itemName.setText(itemList[position].getItemName());
-            TV_itemPrice.setText(""+itemList[position].getItemPrice());
+            TV_itemName.setText(itemList.get(position).getItemName());
+            TV_itemPrice.setText(""+itemList.get(position).getItemPrice());
+
+            btn_order.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    // custom dialog
+                    final Dialog dialog = new Dialog(MainActivity.this);
+                    dialog.setContentView(R.layout.quantity);
+                    //dialog.setTitle("Title...");
+
+                    // set the custom dialog components - text, image and button
+                    TextView TV_confirmName =  dialog.findViewById(R.id.TV_confirmName);
+                    final EditText ET_itemQunatity = dialog.findViewById(R.id.ET_itemQunatity);
+                    Button btn_confirmORder = dialog.findViewById(R.id.btn_confirmORder);
+
+                    TV_confirmName.setText("Android custom dialog example!");
+
+
+                   // if button is clicked, close the custom dialog
+                    btn_confirmORder.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+
+
+                            if(!ET_itemQunatity.getText().toString().equals("") && !ET_tableNo.getText().toString().equals("")){
+
+                                Log.i("XIAN", "Q = "+ET_itemQunatity.getText().toString()+" T = "+ET_tableNo.getText().toString());
+
+                                int quantity = Integer.parseInt(ET_itemQunatity.getText().toString());
+                                int table = Integer.parseInt(ET_tableNo.getText().toString());
+
+                                addOrder(position, quantity, table);
+
+                                dialog.dismiss();
+
+                            }else{
+                                Toast.makeText(getApplicationContext(), "Quantity or Table missing", Toast.LENGTH_LONG).show();
+                            }
+
+
+
+                        }
+                    });
+
+
+                    dialog.setCancelable(true);
+                    dialog.getWindow().setLayout(((getWidth(context) / 100) * 90), ((getHeight(context) / 100) * 50));
+                    dialog.getWindow().setGravity(Gravity.CENTER);
+                    dialog.show();
+
+                    dialog.show();
+
+                }
+            });
+
 
             return view;
         }
+    }
+
+    private void addOrder(int id, int qaunt, int table){
+
+        infoData.getOrderList().add(new OrderList(infoData.getItemList().get(id).getItemName(), qaunt, table));
+        Toast.makeText(getApplicationContext(), "ORDER DONE", Toast.LENGTH_LONG).show();
+
+
+    }
+
+    public static int getWidth(Context context) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager windowmanager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        windowmanager.getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.widthPixels;
+    }
+
+    public static int getHeight(Context context) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager windowmanager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        windowmanager.getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.heightPixels;
     }
 
     /*

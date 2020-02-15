@@ -4,12 +4,12 @@ public class OrderList {
 
     private String ItemName;
     private int ItemQuantity;
-    private String TableNo;
+    private int TableNo;
 
     public OrderList() {
     }
 
-    public OrderList(String itemName, int itemQuantity, String tableNo) {
+    public OrderList(String itemName, int itemQuantity, int tableNo) {
         ItemName = itemName;
         ItemQuantity = itemQuantity;
         TableNo = tableNo;
@@ -31,11 +31,11 @@ public class OrderList {
         ItemQuantity = itemQuantity;
     }
 
-    public String getTableNo() {
+    public int getTableNo() {
         return TableNo;
     }
 
-    public void setTableNo(String tableNo) {
+    public void setTableNo(int tableNo) {
         TableNo = tableNo;
     }
 }

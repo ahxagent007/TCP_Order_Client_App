@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="30dp"
+    android:background="@drawable/box_bgg_white">
+
+    <TextView
+        android:id="@+id/TV_confirmName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Howmany burger do you want ?"
+        android:textSize="20dp"
+        android:textColor="#000000"
+        android:gravity="center"/>
+
+    <EditText
+        android:id="@+id/ET_itemQunatity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Qunatity"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:textColor="#000000"
+        android:inputType="number"
+        android:gravity="center"/>
+
+    <Button
+        android:id="@+id/btn_confirmORder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Confirm Order"/>
+
+
+</LinearLayout>
