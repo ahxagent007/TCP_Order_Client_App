@@ -2,12 +2,12 @@ package com.dexian.tcporderclient;
 
 import java.util.List;
 
-public class infoData {
+public class InfoData {
 
     private List<OrderList> orderList;
     private List<ItemList> itemList;
 
-    public infoData(List<OrderList> orderList, List<ItemList> itemList) {
+    public InfoData(List<OrderList> orderList, List<ItemList> itemList) {
         this.orderList = orderList;
         this.itemList = itemList;
     }

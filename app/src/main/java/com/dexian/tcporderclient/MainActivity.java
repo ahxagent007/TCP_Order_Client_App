@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,11 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,42 +42,82 @@ public class MainActivity extends AppCompatActivity {
     EditText ET_tableNo;
     ListView LV_itemAvailable;
 
-    String IP = "192.168.0.104";
+    String IP = "192.168.0.100";
     int PORT = 6969;
 
     private Timer timer;
 
-    infoData infoData;
+    InfoData infoData;
     CustomAdapter adapter;
+
+    Gson gson;
+
+    List<OrderList> orderList = new ArrayList<OrderList>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        IP = getIP();
+
         btn_settings = findViewById(R.id.btn_settings);
         LV_itemAvailable = findViewById(R.id.LV_itemAvailable);
         ET_tableNo = findViewById(R.id.ET_tableNo);
 
         // Create a new instance of Gson
-        final Gson gson = new Gson();
+        gson = new Gson();
 
 
-        List<OrderList> orderList = new ArrayList<OrderList>();
+
         List<ItemList> itemList = new ArrayList<ItemList>();
 
-        itemList.add(new ItemList("Burger", 100));
-        itemList.add(new ItemList("Chefs Special", 600));
-        itemList.add(new ItemList("Chicken Msala Curry", 150));
-        itemList.add(new ItemList("Chowmeen", 1000));
-        itemList.add( new ItemList("Chicken Burger", 150));
-
-        infoData = new infoData(orderList, itemList);
+        infoData = new InfoData(orderList, itemList);
 
 
         btn_settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // custom dialog
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.setContentView(R.layout.setting_dialog);
+                //dialog.setTitle("Title...");
+
+                // set the custom dialog components - text, image and button
+                final EditText ET_IP = dialog.findViewById(R.id.ET_IP);
+                Button btn_save = dialog.findViewById(R.id.btn_save);
+
+                ET_IP.setText(getIP());
+
+
+                // if button is clicked, close the custom dialog
+                btn_save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        if(!ET_IP.getText().toString().equals("")){
+
+                            IP = ET_IP.getText().toString();
+
+                            setIP(IP);
+
+                            dialog.dismiss();
+
+                        }else{
+                            Toast.makeText(getApplicationContext(), "IP missing", Toast.LENGTH_LONG).show();
+                        }
+
+
+
+                    }
+                });
+
+
+                dialog.setCancelable(true);
+                dialog.getWindow().setLayout(((getWidth(getApplicationContext()) / 100) * 90), ((getHeight(getApplicationContext()) / 100) * 50));
+                dialog.getWindow().setGravity(Gravity.CENTER);
+
+                dialog.show();
 
 
             }
@@ -91,20 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
               @Override
               public void run() {
-                  String sampleJson = gson.toJson(infoData);
-
-                  //BackgroundTask backgroundTask = new BackgroundTask();
-                  //backgroundTask.execute("Sending Data");
-
-                  new Handler(Looper.getMainLooper()).post(new Runnable() {
-                      @Override
-                      public void run() {
-                          adapter.notifyDataSetChanged();
-                      }
-                  });
-
-
-                  Log.i("XIAN", "sampleJson = " + sampleJson);
+                 syncData();
               }
 
           },
@@ -117,13 +143,12 @@ public class MainActivity extends AppCompatActivity {
         adapter = new CustomAdapter(getApplicationContext(), infoData.getItemList());
         LV_itemAvailable.setAdapter(adapter);
 
-        /*
-        //Start Server
 
+        //Start Server
         Thread thread = new Thread(new PersonalServer());
         thread.start();
 
-        */
+
 
     }
 
@@ -132,6 +157,26 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         timer.cancel();
+    }
+
+    private void syncData(){
+        String infoDataJson = gson.toJson(infoData);
+
+        BackgroundTask backgroundTask = new BackgroundTask();
+        backgroundTask.execute(infoDataJson);
+
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                //adapter.notifyDataSetChanged();
+                adapter = new CustomAdapter(getApplicationContext(), infoData.getItemList());
+                LV_itemAvailable.setAdapter(adapter);
+            }
+        });
+
+
+        Log.i("XIAN", "infoDataJson = " + infoDataJson);
+
     }
 
     class BackgroundTask extends AsyncTask<String, Void, String>{
@@ -145,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             String data = msg[0];
 
             try {
+                Log.i("XIAN", "SENDING DATA Client");
                 socket = new Socket(IP, PORT);
 
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -184,21 +230,18 @@ public class MainActivity extends AppCompatActivity {
                     dataInputStream = new DataInputStream(socket.getInputStream());
                     data = dataInputStream.readUTF();
 
-                    /*new Handler().post(new Runnable() {
+
+                    /*new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(), data, Toast.LENGTH_LONG).show();
                         }
                     });*/
 
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), data, Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    infoData = gson.fromJson(data, InfoData.class);
+                    infoData.setOrderList(orderList);
 
-
+                    Log.i("XIAN", "CLIENT INFODATA RECEIVE : "+data);
 
                 }
 
@@ -282,6 +325,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 dialog.dismiss();
 
+
                             }else{
                                 Toast.makeText(getApplicationContext(), "Quantity or Table missing", Toast.LENGTH_LONG).show();
                             }
@@ -295,7 +339,6 @@ public class MainActivity extends AppCompatActivity {
                     dialog.setCancelable(true);
                     dialog.getWindow().setLayout(((getWidth(context) / 100) * 90), ((getHeight(context) / 100) * 50));
                     dialog.getWindow().setGravity(Gravity.CENTER);
-                    dialog.show();
 
                     dialog.show();
 
@@ -312,6 +355,9 @@ public class MainActivity extends AppCompatActivity {
         infoData.getOrderList().add(new OrderList(infoData.getItemList().get(id).getItemName(), qaunt, table));
         Toast.makeText(getApplicationContext(), "ORDER DONE", Toast.LENGTH_LONG).show();
 
+        orderList = infoData.getOrderList();
+
+        syncData();
 
     }
 
@@ -327,6 +373,21 @@ public class MainActivity extends AppCompatActivity {
         WindowManager windowmanager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         windowmanager.getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.heightPixels;
+    }
+
+    private void setIP(String ip){
+        SharedPreferences mSharedPreferences = getSharedPreferences("DATA", MODE_PRIVATE);
+        SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+        mEditor.putString("IP",ip);
+
+        mEditor.apply();
+    }
+
+    private String getIP(){
+        SharedPreferences mSharedPreferences = getSharedPreferences("DATA", MODE_PRIVATE);
+        String ip = mSharedPreferences.getString("IP","192.168.0.100");
+
+        return ip;
     }
 
     /*
