@@ -165,6 +165,8 @@ public class MainActivity extends AppCompatActivity {
         BackgroundTask backgroundTask = new BackgroundTask();
         backgroundTask.execute(infoDataJson);
 
+        IP = getIP();
+
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -279,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(final int position, View view, ViewGroup parent) {
             view = LayoutInflater.from(context).inflate(R.layout.single_item_list, parent, false);
-
 
 
             //add data to UI
